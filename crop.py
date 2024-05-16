@@ -3,8 +3,6 @@ import numpy as np
 import argparse
 import cv2
 
-
-
 fcount = 0
 
 for files in os.listdir('Sample_Pics/'):
@@ -43,10 +41,10 @@ for files in os.listdir('Sample_Pics/'):
 
     # Draw bounding boxes on the copy
     # This only draws the reactangle bounding boxes
-    for box in non_black_boxes:
-        x, y, w, h = box
+    #for box in non_black_boxes:
+        #x, y, w, h = box
         #img output,upper left, lower right, BGR Color, thickness
-        cv2.rectangle(skin_cropped, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        #cv2.rectangle(skin_cropped, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Determine Largest Contour
     # Get largest contour
@@ -59,3 +57,4 @@ for files in os.listdir('Sample_Pics/'):
     
     #This specifically writes the image to a file called skin1.png
     cv2.imwrite(f'CroppedImgs/skin{fcount}.png',largest_contour_image)
+    fcount = fcount + 1 

@@ -208,22 +208,23 @@ def rgbToXyz(r, g, b):
 
     return str(int(X * 100)) + "," + str(int(Y * 100)) + "," + str(int(Z * 100))
 
+
 #0<--Blk+++White-->255
 
-    hcmyk = ""
-    ncmyk = ""
-    hlab = ""
-    nlab = ""
-    hhsv = ""
-    nhsv = ""
-    hlum = ""
-    nlum = ""
-    htemp = ""
-    ntemp = ""
-    hryb = ""
-    nryb = ""
-    hxyz = ""
-    nxyz = ""
+hcmyk = ""
+ncmyk = ""
+hlab = ""
+nlab = ""
+hhsv = ""
+nhsv = ""
+hlum = ""
+nlum = ""
+htemp = ""
+ntemp = ""
+hryb = ""
+nryb = ""
+hxyz = ""
+nxyz = ""
 
 
 
@@ -267,21 +268,21 @@ def getPixels(file_path):
 
     #sorted_arr1 = sorted_keys
     
-    #minPxVal = np.argmin(grayPixels)
-    #maxPxVal = np.argmax(grayPixels)
-    minPxVal = sorted_arr2[10]
-    maxPxVal = sorted_arr2[50]
+    minPxVal = np.argmin(grayPixels)
+    maxPxVal = np.argmax(grayPixels)
+    #minPxVal = sorted_arr2[10]
+    #maxPxVal = sorted_arr2[50]
 
     #The hyperpigmented/darker skin 
-    r_min=minPxVal[0]
-    g_min=minPxVal[1]
-    b_min=minPxVal[2]
+    r_min=pxlArray[minPxVal][0]
+    g_min=pxlArray[minPxVal][1]
+    b_min=pxlArray[minPxVal][2]
 
     #The "Normal" skin tone
-    r_max=maxPxVal[0]
-    g_max=maxPxVal[1]
-    b_max=maxPxVal[2]
-
+    r_max=pxlArray[maxPxVal][0]
+    g_max=pxlArray[maxPxVal][1]
+    b_max=pxlArray[maxPxVal][2]
+    '''
     print(r_min," ",g_min," ",g_min)
     print(r_max," ",g_max," ",g_max)
 
@@ -292,7 +293,7 @@ def getPixels(file_path):
     print("TEMP -","Hyper ", rgbToTemperature(r_min,g_min,b_min),"  Normal ",rgbToTemperature(r_max,g_max,b_max))
     print("RYB  -","Hyper ", rgbToRyb(r_min,g_min,b_min),"          Normal ",rgbToRyb(r_max,g_max,b_max))
     print("XYZ  -","Hyper ", rgbToXyz(r_min,g_min,b_min),"          Normal ",rgbToXyz(r_max,g_max,b_max))
-        
+    '''    
     hcmyk = rgb_to_cmyk(r_min,g_min,b_min)
     ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
 
@@ -335,7 +336,6 @@ def getPixels(file_path):
         for row in data:
             writer.writerow(row)
 
-    '''
     window_size = 3
     #The center value is the centre-point of the selected pixel
     #minPxVal is the location of the darkest pixel in the array
@@ -352,6 +352,9 @@ def getPixels(file_path):
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    
+    '''
 
         imgW = np.size(img,1)
         imgH = np.size(img,0)
@@ -480,5 +483,5 @@ def getPixels(file_path):
     '''
 
 
-filename =  'D:\\Coding\\InitialProcessing\\InitialProcessing\\Sample_Pics\\7.JPG'
+filename =  'D:\Coding\InitialProcessing\InitialProcessing\CroppedImgs\skin1.png'
 getPixels(filename)

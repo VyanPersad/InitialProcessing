@@ -295,28 +295,23 @@ for files in os.listdir('CroppedImgs/'):
     g_max=maxPxVal[1]
     b_max=maxPxVal[2]
 
-
     hcmyk = rgb_to_cmyk(r_min,g_min,b_min)
-    ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
-
     hlab = rgbToLab(r_min,g_min,b_min)
-    nlab = rgbToLab(r_max,g_max,b_max)
-
     hhsv = rgbToHsv(r_min,g_min,b_min)
-    nhsv = rgbToHsv(r_max,g_max,b_max)
-
     hlum = rgbToLuminance(r_min,g_min,b_min)
-    nlum = rgbToLuminance(r_max,g_max,b_max)
-
     htemp = rgbToTemperature(r_min,g_min,b_min)
-    ntemp = rgbToTemperature(r_max,g_max,b_max)
-
     hryb = rgbToRyb(r_min,g_min,b_min)
-    nryb = rgbToRyb(r_max,g_max,b_max)
-
     hxyz = rgbToXyz(r_min,g_min,b_min)
-    nxyz = rgbToXyz(r_max,g_max,b_max)
 
+    '''
+    nxyz = rgbToXyz(r_max,g_max,b_max)
+    nryb = rgbToRyb(r_max,g_max,b_max)
+    ntemp = rgbToTemperature(r_max,g_max,b_max)
+    nlum = rgbToLuminance(r_max,g_max,b_max)
+    nhsv = rgbToHsv(r_max,g_max,b_max)
+    nlab = rgbToLab(r_max,g_max,b_max)
+    ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
+    
     #hkval = k_val(r_min,g_min,b_min)
     #nkval = k_val(r_min,g_min,b_min)
 
@@ -329,7 +324,17 @@ for files in os.listdir('CroppedImgs/'):
                     'HHSV', 'NHSV', 'HLUM', 'NLUM', 
                     'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 
                     'HXYZ','NXYZ']
+    '''
+    data = [{'HCMYK': hcmyk,'HLAB': hlab, 
+                'HHSV':hhsv,'HLUM':hlum,
+                'HTEMP':htemp, 'HRYB': hryb,
+                'HXYZ': hxyz}]
 
+    header_names = ['HCMYK', 'HLAB',
+                    'HHSV',  'HLUM', 
+                    'HTEMP',  'HRYB', 
+                    'HXYZ']
+    
     file_path = 'data_channels.csv'
     file_exists = os.path.exists(file_path)
 
