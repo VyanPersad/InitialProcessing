@@ -295,18 +295,6 @@ for files in os.listdir('CroppedImgs/'):
     g_max=maxPxVal[1]
     b_max=maxPxVal[2]
 
-    '''
-    print(r_min," ",g_min," ",g_min)
-    print(r_max," ",g_max," ",g_max)
-
-    print("CMYK -","Hyper ", rgb_to_cmyk(r_min,g_min,b_min),"       Normal ",rgb_to_cmyk(r_max,g_max,b_max))
-    print("Lab  -","Hyper ", rgbToLab(r_min,g_min,b_min),"          Normal ",rgbToLab(r_max,g_max,b_max))
-    print("HSV  -","Hyper ", rgbToHsv(r_min,g_min,b_min),"          Normal ",rgbToHsv(r_max,g_max,b_max))
-    print("LUM  -","Hyper ", rgbToLuminance(r_min,g_min,b_min),"    Normal ",rgbToLuminance(r_max,g_max,b_max))
-    print("TEMP -","Hyper ", rgbToTemperature(r_min,g_min,b_min),"  Normal ",rgbToTemperature(r_max,g_max,b_max))
-    print("RYB  -","Hyper ", rgbToRyb(r_min,g_min,b_min),"          Normal ",rgbToRyb(r_max,g_max,b_max))
-    print("XYZ  -","Hyper ", rgbToXyz(r_min,g_min,b_min),"          Normal ",rgbToXyz(r_max,g_max,b_max))
-    '''
 
     hcmyk = rgb_to_cmyk(r_min,g_min,b_min)
     ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
