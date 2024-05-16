@@ -330,7 +330,7 @@ for files in os.listdir('CroppedImgs/'):
                     'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 
                     'HXYZ','NXYZ']
 
-    file_path = 'data.csv'
+    file_path = 'data_channels.csv'
     file_exists = os.path.exists(file_path)
 
     with open(file_path, mode='a', newline='') as file:
