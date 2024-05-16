@@ -1,11 +1,10 @@
-import cv2
+import os
 import numpy as np
+import argparse
+import cv2
 import random
 import math
-from colormath.color_objects import sRGBColor, CMYKColor
-from colormath.color_conversions import convert_color
 import csv
-import os
 
 RGB_SCALE = 255
 CMYK_SCALE = 100
@@ -208,33 +207,47 @@ def rgbToXyz(r, g, b):
 
     return str(int(X * 100)) + "," + str(int(Y * 100)) + "," + str(int(Z * 100))
 
+def k_val(r,g,b):
+    c = 255 - r
+    m = 255 - g
+    y = 255 - b
+    k = np.minimum(np.minimum(c, m), y)
+    c = cv2.subtract(c, k)
+    m = cv2.subtract(m, k)
+    y = cv2.subtract(y, k)
+
+    # Compute the average value of the K channel
+    k_value = np.mean(k)
+    return k_value
+
 #0<--Blk+++White-->255
 
-    hcmyk = ""
-    ncmyk = ""
-    hlab = ""
-    nlab = ""
-    hhsv = ""
-    nhsv = ""
-    hlum = ""
-    nlum = ""
-    htemp = ""
-    ntemp = ""
-    hryb = ""
-    nryb = ""
-    hxyz = ""
-    nxyz = ""
+hcmyk = ""
+ncmyk = ""
+hlab = ""
+nlab = ""
+hhsv = ""
+nhsv = ""
+hlum = ""
+nlum = ""
+htemp = ""
+ntemp = ""
+hryb = ""
+nryb = ""
+hxyz = ""
+nxyz = ""
+hkval = ""
+nkval = ""
 
 
+fcount = 0
 
-def getPixels(file_path):
+for files in os.listdir('CroppedImgs/'):
+    file_path = f'CroppedImgs/skin{fcount}.png'
     img = cv2.imread(file_path)
-
+    fcount = fcount + 1 
     imgW = np.size(img,1)
     imgH = np.size(img,0)
-
-    #print(imgW)
-    #print(imgH)
 
     randoW = []
     randoH = []
@@ -248,8 +261,8 @@ def getPixels(file_path):
     #While at the same time eliminating the wholly black pixels.
     while count != n: 
         for i in range(0,n):
-            h = random.randint(1,imgH-1)
-            w = random.randint(1,imgW-1)
+            h = random.randint(0,imgH-1)
+            w = random.randint(0,imgW-1)
             if not np.all(img[h, w] == 0):
                 randoW.append(w)
                 randoH.append(h)
@@ -263,14 +276,14 @@ def getPixels(file_path):
 
     data_pairs = dict(zip(grayPixels, pxlArray))
     sorted_keys = sorted(data_pairs.keys())
-    sorted_arr2 = [data_pairs[key] for key in sorted_keys]
+    sorted_arr2 = [data_pairs[key] for key in sorted_keys]    
 
-    #sorted_arr1 = sorted_keys
-    
-    #minPxVal = np.argmin(grayPixels)
-    #maxPxVal = np.argmax(grayPixels)
-    minPxVal = sorted_arr2[10]
-    maxPxVal = sorted_arr2[50]
+    minpt = int(0.2*(len(sorted_arr2)))
+    maxpt = int(0.8*(len(sorted_arr2)))
+    #print(pxlArray[2])
+
+    minPxVal = sorted_arr2[minpt]
+    maxPxVal = sorted_arr2[maxpt]
 
     #The hyperpigmented/darker skin 
     r_min=minPxVal[0]
@@ -282,6 +295,7 @@ def getPixels(file_path):
     g_max=maxPxVal[1]
     b_max=maxPxVal[2]
 
+    '''
     print(r_min," ",g_min," ",g_min)
     print(r_max," ",g_max," ",g_max)
 
@@ -292,7 +306,8 @@ def getPixels(file_path):
     print("TEMP -","Hyper ", rgbToTemperature(r_min,g_min,b_min),"  Normal ",rgbToTemperature(r_max,g_max,b_max))
     print("RYB  -","Hyper ", rgbToRyb(r_min,g_min,b_min),"          Normal ",rgbToRyb(r_max,g_max,b_max))
     print("XYZ  -","Hyper ", rgbToXyz(r_min,g_min,b_min),"          Normal ",rgbToXyz(r_max,g_max,b_max))
-        
+    '''
+
     hcmyk = rgb_to_cmyk(r_min,g_min,b_min)
     ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
 
@@ -314,12 +329,18 @@ def getPixels(file_path):
     hxyz = rgbToXyz(r_min,g_min,b_min)
     nxyz = rgbToXyz(r_max,g_max,b_max)
 
-    data = [{'HCMYK': hcmyk, 'NCMYK': ncmyk, 'HLAB': hlab, 'NLAB': nlab, 
-    'HHSV':hhsv, 'NHSV':nhsv, 'HLUM':hlum, 'NLUM':nlum, 'HTEMP':htemp, 
-    'NTEMP':ntemp, 'HRYB': hryb, 'NRYB': nryb, 'HXYZ': hxyz, 'NXYZ':nxyz}]
+    #hkval = k_val(r_min,g_min,b_min)
+    #nkval = k_val(r_min,g_min,b_min)
 
-    header_names = ['HCMYK', 'NCMYK', 'HLAB', 'NLAB', 'HHSV', 'NHSV', 
-    'HLUM', 'NLUM', 'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 'HXYZ','NXYZ']
+    data = [{'HCMYK': hcmyk, 'NCMYK': ncmyk, 'HLAB': hlab, 'NLAB': nlab, 
+                'HHSV':hhsv, 'NHSV':nhsv, 'HLUM':hlum, 'NLUM':nlum, 
+                'HTEMP':htemp, 'NTEMP':ntemp, 'HRYB': hryb, 'NRYB': nryb, 
+                'HXYZ': hxyz, 'NXYZ':nxyz}]
+
+    header_names = ['HCMYK', 'NCMYK', 'HLAB', 'NLAB', 
+                    'HHSV', 'NHSV', 'HLUM', 'NLUM', 
+                    'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 
+                    'HXYZ','NXYZ']
 
     file_path = 'data.csv'
     file_exists = os.path.exists(file_path)
@@ -335,150 +356,5 @@ def getPixels(file_path):
         for row in data:
             writer.writerow(row)
 
-    '''
-    window_size = 3
-    #The center value is the centre-point of the selected pixel
-    #minPxVal is the location of the darkest pixel in the array
-    #It is the result of the 
-    center = (randoW[minPxVal],randoH[minPxVal])
-    region = cv2.getRectSubPix(img, (window_size, window_size), center)
-    resize = cv2.resize(region,(400,400),interpolation=cv2.INTER_CUBIC)
-    cv2.imshow("Darker", resize)
-
-    center2 = (randoW[maxPxVal],randoH[maxPxVal])
-    region2 = cv2.getRectSubPix(img, (window_size, window_size), center2)
-    resize2 = cv2.resize(region2,(400,400),interpolation=cv2.INTER_CUBIC)
-    cv2.imshow("Lighter", resize2)
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-        imgW = np.size(img,1)
-        imgH = np.size(img,0)
-
-        #print(imgW)
-        #print(imgH)
-
-        randoW = []
-        randoH = []
-        pxlArray = []
-        grayPixels = []
-
-        count = 0
-        #Set sample size
-        n = 1000
-        #Sample pixels
-        #While at the same time eliminating the wholly black pixels.
-        while count != n: 
-            for i in range(0,n):
-                h = random.randint(1,imgH-1)
-                w = random.randint(1,imgW-1)
-                if(np.any(img[h,w])!=0 & np.any(img[h,w])>=10):
-                    randoW.append(w)
-                    randoH.append(h)
-                    count = count + 1
-                else:
-                    break
-
-        for i in range(0,n):
-            pxlArray.append(img[randoH[i], randoW[i]])
-            grayPixels.append(int(sum(pxlArray[i])//3))
-
-
-        minPxVal = np.argmin(grayPixels)
-        maxPxVal = np.argmax(grayPixels)
-
-        #The hyperpigmented/darker skin 
-        r_min=pxlArray[minPxVal][0]
-        g_min=pxlArray[minPxVal][1]
-        b_min=pxlArray[minPxVal][2]
-        #print(r_min ," ",g_min," ",b_min)
-        #The "Normal" skin tone
-        r_max=pxlArray[maxPxVal][0]
-        g_max=pxlArray[maxPxVal][1]
-        b_max=pxlArray[maxPxVal][2]
-        #print(r_max," ",g_max," ",b_max)
-
-        print("CMYK -","Hyper ", rgb_to_cmyk(r_min,g_min,b_min),"       Normal ",rgb_to_cmyk(r_max,g_max,b_max))
-        print("Lab  -","Hyper ", rgbToLab(r_min,g_min,b_min),"          Normal ",rgbToLab(r_max,g_max,b_max))
-        print("HSV  -","Hyper ", rgbToHsv(r_min,g_min,b_min),"          Normal ",rgbToHsv(r_max,g_max,b_max))
-        print("LUM  -","Hyper ", rgbToLuminance(r_min,g_min,b_min),"    Normal ",rgbToLuminance(r_max,g_max,b_max))
-        print("TEMP -","Hyper ", rgbToTemperature(r_min,g_min,b_min),"  Normal ",rgbToTemperature(r_max,g_max,b_max))
-        print("RYB  -","Hyper ", rgbToRyb(r_min,g_min,b_min),"          Normal ",rgbToRyb(r_max,g_max,b_max))
-        print("XYZ  -","Hyper ", rgbToXyz(r_min,g_min,b_min),"          Normal ",rgbToXyz(r_max,g_max,b_max))
-
-        hcmyk = rgb_to_cmyk(r_min,g_min,b_min)
-        ncmyk = rgb_to_cmyk(r_max,g_max,b_max)
-
-        hlab = rgbToLab(r_min,g_min,b_min)
-        nlab = rgbToLab(r_max,g_max,b_max)
-
-        hhsv = rgbToHsv(r_min,g_min,b_min)
-        nhsv = rgbToHsv(r_max,g_max,b_max)
-
-        hlum = rgbToLuminance(r_min,g_min,b_min)
-        nlum = rgbToLuminance(r_max,g_max,b_max)
-
-        htemp = rgbToTemperature(r_min,g_min,b_min)
-        ntemp = rgbToTemperature(r_max,g_max,b_max)
-
-        hryb = rgbToRyb(r_min,g_min,b_min)
-        nryb = rgbToRyb(r_max,g_max,b_max)
-
-        hxyz = rgbToXyz(r_min,g_min,b_min)
-        nxyz = rgbToXyz(r_max,g_max,b_max)
+    print('Done')
     
-        hyperPig = get_pigmentation_info(r_min, g_min, b_min)
-        normPig = get_pigmentation_info(r_max, g_max, b_max)
-
-        for key, value in zip(hyperPig,normPig):
-            pigDict[key]=value
-    
-
-    return render_template('index.html', 
-                               img_path1='skin1.png',
-                               textOut1=pigDict)
-    
-    return render_template('index.html', 
-                               img_path1='skin1.png',
-                               l1="CMYK",HCMYK=hcmyk,NCMYK=ncmyk,
-                               l2="Lab",HLAB=hlab,NLAB=nlab,
-                               l3="HSV",HHSV=hhsv,NHSV=nhsv,
-                               l4="LUM",HLUM=hlum,NLUM=nlum,
-                               l5="TEMP",HTEMP=htemp,NTEMP=ntemp,
-                               l6="HRYB",HRYB=hryb,NRYB=nryb,
-                               l7="XYZ",HXYZ=hxyz,NXYZ=nxyz,
-                            )
-
-    
-    return render_template('index.html', 
-                               img_path1='skin1.png',
-                               textOut1=pigDict)
-    
-    return render_template('index.html', 
-                               img_path1='skin1.png',
-                               l1="CMYK",HCMYK=hcmyk,NCMYK=ncmyk,
-                               l2="Lab",HLAB=hlab,NLAB=nlab,
-                               l3="HSV",HHSV=hhsv,NHSV=nhsv,
-                               l4="LUM",HLUM=hlum,NLUM=nlum,
-                               l5="TEMP",HTEMP=htemp,NTEMP=ntemp,
-                               l6="HRYB",HRYB=hryb,NRYB=nryb,
-                               l7="XYZ",HXYZ=hxyz,NXYZ=nxyz,
-                            )
-
-        <table class="centre">
-            <tr><td>      </td><td class="text">Hyper<td><td>Norm</td></tr>
-            <tr><td>{{l1}}</td><td>{{ HCMYK }}<td><td>{{ NCMYK }}</td></tr>
-            <tr><td>{{l2}}</td><td>{{ HLAB }}<td><td>{{ NLAB }}</td></tr>
-            <tr><td>{{l3}}</td><td>{{ HHSV }}<td><td>{{ NHSV }}</td></tr>
-            <tr><td>{{l4}}</td><td>{{ HLUM }}<td><td>{{ NLUM }}</td></tr>
-            <tr><td>{{l5}}</td><td>{{ HTEMP }}<td><td>{{ NTEMP }}</td></tr>
-            <tr><td>{{l6}}</td><td>{{ HRYB }}<td><td>{{ NRYB }}</td></tr>
-            <tr><td>{{l7}}</td><td>{{ HXYZ }}<td><td>{{ NXYZ }}</td></tr>
-        </table>
-
-    '''
-
-
-filename =  'D:\\Coding\\InitialProcessing\\InitialProcessing\\Sample_Pics\\7.JPG'
-getPixels(filename)

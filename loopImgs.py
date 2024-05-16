@@ -207,6 +207,19 @@ def rgbToXyz(r, g, b):
 
     return str(int(X * 100)) + "," + str(int(Y * 100)) + "," + str(int(Z * 100))
 
+def k_val(r,g,b):
+    c = 255 - r
+    m = 255 - g
+    y = 255 - b
+    k = np.minimum(np.minimum(c, m), y)
+    c = cv2.subtract(c, k)
+    m = cv2.subtract(m, k)
+    y = cv2.subtract(y, k)
+
+    # Compute the average value of the K channel
+    k_value = np.mean(k)
+    return k_value
+
 #0<--Blk+++White-->255
 
 hcmyk = ""
@@ -223,6 +236,8 @@ hryb = ""
 nryb = ""
 hxyz = ""
 nxyz = ""
+hkval = ""
+nkval = ""
 
 
 fcount = 0
@@ -293,7 +308,7 @@ for files in os.listdir('Sample_Pics/'):
 
     count = 0
     #Set sample size
-    n = 10
+    n = 50
     #Sample pixels
     #While at the same time eliminating the wholly black pixels.
     while count != n: 
@@ -311,18 +326,26 @@ for files in os.listdir('Sample_Pics/'):
         pxlArray.append(img[randoH[i], randoW[i]])
         grayPixels.append(int(sum(pxlArray[i])//3))
 
-    minPxVal = np.argmin(grayPixels)
-    maxPxVal = np.argmax(grayPixels)
+    data_pairs = dict(zip(grayPixels, pxlArray))
+    sorted_keys = sorted(data_pairs.keys())
+    sorted_arr2 = [data_pairs[key] for key in sorted_keys]    
+
+    minpt = int(0.2*(len(sorted_arr2)))
+    maxpt = int(0.8*(len(sorted_arr2)))
+    #print(pxlArray[2])
+
+    minPxVal = sorted_arr2[minpt]
+    maxPxVal = sorted_arr2[maxpt]
 
     #The hyperpigmented/darker skin 
-    r_min=pxlArray[minPxVal][0]
-    g_min=pxlArray[minPxVal][1]
-    b_min=pxlArray[minPxVal][2]
+    r_min=minPxVal[0]
+    g_min=minPxVal[1]
+    b_min=minPxVal[2]
 
     #The "Normal" skin tone
-    r_max=pxlArray[maxPxVal][0]
-    g_max=pxlArray[maxPxVal][1]
-    b_max=pxlArray[maxPxVal][2]
+    r_max=maxPxVal[0]
+    g_max=maxPxVal[1]
+    b_max=maxPxVal[2]
 
     '''
     print(r_min," ",g_min," ",g_min)
@@ -358,9 +381,18 @@ for files in os.listdir('Sample_Pics/'):
     hxyz = rgbToXyz(r_min,g_min,b_min)
     nxyz = rgbToXyz(r_max,g_max,b_max)
 
-    data = [{'HCMYK': hcmyk, 'NCMYK': ncmyk, 'HLAB': hlab, 'NLAB': nlab, 'HHSV':hhsv, 'NHSV':nhsv, 'HLUM':hlum, 'NLUM':nlum, 'HTEMP':htemp, 'NTEMP':ntemp, 'HRYB': hryb, 'NRYB': nryb, 'HXYZ': hxyz, 'NXYZ':nxyz}]
+    #hkval = k_val(r_min,g_min,b_min)
+    #nkval = k_val(r_min,g_min,b_min)
 
-    header_names = ['HCMYK', 'NCMYK', 'HLAB', 'NLAB', 'HHSV', 'NHSV', 'HLUM', 'NLUM', 'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 'HXYZ','NXYZ']
+    data = [{'HCMYK': hcmyk, 'NCMYK': ncmyk, 'HLAB': hlab, 'NLAB': nlab, 
+                'HHSV':hhsv, 'NHSV':nhsv, 'HLUM':hlum, 'NLUM':nlum, 
+                'HTEMP':htemp, 'NTEMP':ntemp, 'HRYB': hryb, 'NRYB': nryb, 
+                'HXYZ': hxyz, 'NXYZ':nxyz}]
+
+    header_names = ['HCMYK', 'NCMYK', 'HLAB', 'NLAB', 
+                    'HHSV', 'NHSV', 'HLUM', 'NLUM', 
+                    'HTEMP', 'NTEMP', 'HRYB', 'NRYB', 
+                    'HXYZ','NXYZ']
 
     file_path = 'data.csv'
     file_exists = os.path.exists(file_path)
